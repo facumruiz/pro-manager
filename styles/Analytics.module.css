@@ -1,0 +1,153 @@
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+}
+
+.header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--text);
+}
+
+.subtitle { color: var(--text2); font-size: 0.9rem; margin-top: 4px; }
+
+/* KPIs */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.kpiCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.kpiValue {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+}
+
+.kpiLabel {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 4px;
+}
+
+.kpiSub {
+  font-size: 0.72rem;
+  color: var(--text3);
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.25rem 1rem;
+}
+
+.cardSm { grid-column: span 4; }
+.cardMd { grid-column: span 6; }
+.cardLg { grid-column: span 8; }
+.cardFull { grid-column: span 12; }
+
+.cardTitle {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text2);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+/* Nationality list */
+.nacList { display: flex; flex-direction: column; gap: 0.6rem; }
+.nacRow { display: flex; align-items: center; gap: 0.75rem; }
+.nacName { font-size: 0.82rem; color: var(--text); width: 90px; flex-shrink: 0; }
+.nacBarWrap { flex: 1; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.nacBarFill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; opacity: 0.8; }
+.nacCount { font-size: 0.8rem; color: var(--text2); font-weight: 600; width: 16px; text-align: right; }
+
+/* Table */
+.tableWrap { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+.table th {
+  text-align: left;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text3);
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+}
+.table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--text);
+  vertical-align: middle;
+}
+.table tr:last-child td { border-bottom: none; }
+.table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.tdName { font-weight: 600; }
+.tdPos {
+  font-size: 0.68rem;
+  font-weight: 800;
+  background: var(--accent-dim);
+  color: var(--accent);
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.miniBar {
+  width: 60px;
+  height: 4px;
+  background: var(--surface2);
+  border-radius: 2px;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+.miniBar div { height: 100%; border-radius: 2px; }
+.miniVal { font-size: 0.72rem; color: var(--text2); }
+
+@media (max-width: 1024px) {
+  .cardSm { grid-column: span 6; }
+  .cardMd { grid-column: span 6; }
+  .cardLg { grid-column: span 12; }
+}
+
+@media (max-width: 640px) {
+  .page { padding: 1.25rem; }
+  .cardSm, .cardMd, .cardLg { grid-column: span 12; }
+  .kpis { grid-template-columns: repeat(3, 1fr); }
+}

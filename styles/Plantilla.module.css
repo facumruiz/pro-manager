@@ -1,0 +1,517 @@
+/* ─────────────────────────────────────────────────────
+   LAYOUT: lista izquierda | cancha centro | detalle derecha
+   La cancha tiene ancho fijo de 300px → altura = 450px (2:3)
+───────────────────────────────────────────────────────*/
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 280px 300px;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+}
+
+/* ── LIST PANEL (izquierda) ──────────────────────────*/
+.listPanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+  order: 1;
+}
+
+/* ── DETAIL PANEL (centro) ───────────────────────────*/
+.detailPanel {
+  background: var(--surface);
+  height: 100%;
+  overflow-y: auto;
+  padding: 1.25rem 1.1rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  order: 2;
+  border-right: 1px solid var(--border);
+}
+
+/* ── PITCH PANEL (derecha) ───────────────────────────*/
+.pitchPanel {
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  order: 3;
+}
+
+/* ── PITCH HEADER ────────────────────────────────────*/
+.pitchHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.panelTitle {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--text2);
+  text-transform: uppercase;
+}
+
+.count {
+  display: inline-block;
+  background: var(--surface2);
+  color: var(--text2);
+  font-size: 0.7rem;
+  padding: 1px 7px;
+  border-radius: 20px;
+  margin-left: 8px;
+  font-family: var(--font-body);
+  font-weight: 500;
+}
+
+.select {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* ── PITCH CONTAINER ─────────────────────────────────*/
+/* fills space between header and bench */
+.pitchContainer {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.75rem;
+}
+
+/* 
+  pitchWrap: ancho fijo que llena el contenedor,
+  altura derivada del aspect-ratio 2:3
+  → con 300px de columna y 24px de padding queda ~252px ancho → 378px alto
+*/
+.pitchWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  max-height: 100%;
+  background: #1a6b35;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.5);
+}
+
+/* ── PLAYER SLOTS ────────────────────────────────────*/
+.pitchSlot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 2;
+  padding: 0;
+}
+
+.slotDot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.4);
+  transition: transform 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.pitchSlot:hover .slotDot {
+  transform: scale(1.15);
+  border-color: rgba(255,255,255,0.85);
+}
+.pitchSlotActive .slotDot {
+  border-color: #fff;
+  transform: scale(1.15);
+  box-shadow: 0 0 0 3px rgba(0,230,118,0.4);
+}
+
+.slotLabel {
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: rgba(255,255,255,0.95);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.slotName {
+  font-size: 0.55rem;
+  color: rgba(255,255,255,0.85);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.95);
+  max-width: 52px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* ── BENCH ───────────────────────────────────────────*/
+.bench {
+  padding: 0.5rem 0.75rem 0.6rem;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.benchTitle {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  display: block;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+}
+
+.benchList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.benchChip {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 2px 7px;
+  background: var(--surface2);
+  border-radius: 4px;
+  font-size: 0.68rem;
+  color: var(--text2);
+  border: 1px solid transparent;
+  transition: border-color 0.15s, color 0.15s;
+  cursor: pointer;
+}
+
+.benchChip span:first-child {
+  color: var(--blue);
+  font-weight: 700;
+  font-size: 0.62rem;
+}
+
+.benchChip:hover { border-color: var(--blue); color: var(--text); }
+.benchChipActive { border-color: var(--blue) !important; color: var(--text) !important; }
+
+/* ── LIST HEADER ─────────────────────────────────────*/
+.listHeader {
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.filterBtn {
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text2);
+  background: none;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.filterBtn:hover { border-color: var(--text3); color: var(--text); }
+.filterActive {
+  background: var(--surface2) !important;
+  color: var(--text) !important;
+}
+
+/* ── PLAYER LIST ─────────────────────────────────────*/
+.playerList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.25rem 0;
+}
+
+.playerRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 1.25rem;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: background 0.12s, border-color 0.12s;
+}
+.playerRow:hover { background: var(--surface2); }
+.playerRowActive {
+  background: var(--surface2) !important;
+  border-left-color: var(--accent) !important;
+}
+
+.posBadge {
+  width: 36px;
+  text-align: center;
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 2px 4px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.playerName {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 0.83rem;
+  font-weight: 500;
+  color: var(--text);
+  min-width: 0;
+}
+.playerLastname { font-weight: 700; }
+
+.playerMeta {
+  font-size: 0.73rem;
+  color: var(--text2);
+  white-space: nowrap;
+}
+
+.attrBar {
+  position: relative;
+  width: 44px;
+  height: 4px;
+  background: var(--surface2);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.attrFill {
+  position: absolute;
+  left: 0; top: 0;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+.attrVal {
+  position: absolute;
+  top: -13px;
+  right: 0;
+  font-size: 0.57rem;
+  color: var(--text3);
+  white-space: nowrap;
+}
+
+.estadoBadge {
+  font-size: 0.63rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── DETAIL PANEL CONTENT ────────────────────────────*/
+.closeBtn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--surface2);
+  color: var(--text2);
+  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: color 0.15s;
+}
+.closeBtn:hover { color: var(--text); }
+
+.detailTop { display: flex; align-items: center; gap: 0.85rem; }
+.detailAvatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  border: 2px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.detailName { font-size: 0.92rem; font-weight: 700; color: var(--text); }
+.detailMeta { font-size: 0.73rem; color: var(--text2); margin-top: 2px; }
+
+.detailStats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
+
+.statCell {
+  background: var(--surface2);
+  border-radius: 7px;
+  padding: 0.5rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.statLabel {
+  font-size: 0.6rem;
+  color: var(--text3);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.statValue { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+
+.detailSection { display: flex; flex-direction: column; gap: 0.5rem; }
+.sectionLabel {
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  text-transform: uppercase;
+}
+
+.statusSelect {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.4rem 0.65rem;
+  border-radius: 7px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  width: 100%;
+}
+
+.attrGrid { display: flex; flex-wrap: wrap; gap: 3px; }
+.attrTag {
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--surface2);
+  color: var(--text3);
+  border: 1px solid transparent;
+}
+.attrTagOn {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-color: rgba(0,230,118,0.2);
+}
+
+.priorityBadge {
+  background: rgba(255,165,2,0.12);
+  color: #ffa502;
+  border: 1px solid rgba(255,165,2,0.25);
+  border-radius: 8px;
+  padding: 0.4rem 0.65rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────*/
+@media (max-width: 1280px) {
+  .layout {
+    grid-template-columns: 1fr 260px 260px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .layout {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr auto;
+    height: auto;
+    min-height: calc(100vh - 60px);
+    overflow: visible;
+  }
+  .listPanel {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    height: calc(100vh - 60px);
+    order: 1;
+  }
+  .detailPanel {
+    grid-column: 2;
+    grid-row: 2;
+    height: auto;
+    border-right: none;
+    border-top: 1px solid var(--border);
+    order: 3;
+  }
+  .pitchPanel {
+    grid-column: 2;
+    grid-row: 1;
+    height: auto;
+    min-height: 520px;
+    border-bottom: 1px solid var(--border);
+    order: 2;
+  }
+}
+
+@media (max-width: 680px) {
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    height: auto;
+    overflow: visible;
+  }
+  .pitchPanel {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 440px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    order: 1;
+  }
+  .listPanel {
+    grid-column: 1;
+    grid-row: 2;
+    height: 60vh;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    order: 2;
+  }
+  .detailPanel {
+    grid-column: 1;
+    grid-row: 3;
+    height: auto;
+    border-right: none;
+    order: 3;
+  }
+  .slotDot { width: 26px; height: 26px; }
+  .slotLabel { font-size: 0.55rem; }
+  .slotName { font-size: 0.5rem; max-width: 40px; }
+}
