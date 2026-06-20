@@ -147,7 +147,10 @@
 }
 
 @media (max-width: 640px) {
-  .page { padding: 1.25rem; }
+  .page { padding: 1.25rem 1rem 3rem; }
+  .title { font-size: 1.5rem; }
   .cardSm, .cardMd, .cardLg { grid-column: span 12; }
-  .kpis { grid-template-columns: repeat(3, 1fr); }
+  .kpis { grid-template-columns: repeat(2, 1fr); gap: 0.65rem; }
+  .kpiCard { padding: 1rem 0.85rem; }
+  .kpiValue { font-size: 1.7rem; }
 }

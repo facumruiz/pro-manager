@@ -410,6 +410,7 @@
 
 @media (max-width: 680px) {
   .page { padding: 1.25rem 1rem 3rem; }
+  .title { font-size: 1.5rem; }
   .pickers { grid-template-columns: 1fr; }
   .vsLabel { display: none; }
   .scoreRow { grid-template-columns: 1fr 1fr; }
