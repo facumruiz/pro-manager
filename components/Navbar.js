@@ -7,6 +7,7 @@ const NAV = [
   { href: '/plantilla', label: 'Plantilla' },
   { href: '/comparador', label: 'Comparador' },
   { href: '/analytics', label: 'Análisis' },
+  { href: '/asistente', label: 'Asistente IA' },
 ];
 
 export default function Navbar() {
