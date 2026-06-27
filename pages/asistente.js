@@ -4,6 +4,7 @@ import { mockPlayers } from '../data/players';
 import ReactMarkdown from 'react-markdown';
 import styles from '../styles/Asistente.module.css';
 
+// ── CONTEXTO ────────────────────────────────────────────
 function calcAge(dob) {
   const b = new Date(dob);
   const today = new Date();
@@ -22,33 +23,61 @@ function buildContext(players) {
     });
     const totalAttrs = ['tecnico', 'fisico', 'mental'].reduce((acc, cat) =>
       acc + Object.values(p.atributos?.[cat] || {}).length, 0);
-    return `- ${p.datosPersonales.nombre} ${p.datosPersonales.apellido} | Pos: ${p.perfilFutbolistico.posicionNatural} | Estado: ${p.perfilFutbolistico.estado} | Edad: ${age}a (nac: ${p.datosPersonales.fechaNacimiento}) | Nac: ${p.datosPersonales.primeraNacionalidad} | Perfil: ${p.perfilFutbolistico.perfilHabil} | Altura: ${p.fisico?.altura}m | Atributos (${allAttrs.length}/${totalAttrs}): ${allAttrs.join(', ')} | Club: ${p.contrato?.clubActual} | Prioritario: ${p.contrato?.fichajePrioritario ? 'Sí' : 'No'}`;
+    return `${p.datosPersonales.nombre} ${p.datosPersonales.apellido}|${p.perfilFutbolistico.posicionNatural}|${p.perfilFutbolistico.estado}|${age}a|${p.datosPersonales.primeraNacionalidad}|${p.perfilFutbolistico.perfilHabil}|${p.fisico?.altura}m|attrs(${allAttrs.length}/${totalAttrs}):${allAttrs.join(',')}|club:${p.contrato?.clubActual}|prior:${p.contrato?.fichajePrioritario ? 'si' : 'no'}`;
   }).join('\n');
 }
 
+// ── MENSAJES DE CARGA ROTATIVOS ──────────────────────────
+const LOADING_MSGS = [
+  '⚽ Analizando la plantilla...',
+  '🔍 Revisando atributos...',
+  '📊 Procesando estadísticas...',
+  '🧠 Consultando al asistente...',
+  '📋 Comparando jugadores...',
+  '⏱️ Calculando rendimiento...',
+  '🎯 Buscando la respuesta...',
+];
+
+function useRotatingMsg(active, interval = 2200) {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    if (!active) { setIdx(0); return; }
+    const timer = setInterval(() => {
+      setIdx(i => (i + 1) % LOADING_MSGS.length);
+    }, interval);
+    return () => clearInterval(timer);
+  }, [active]);
+  return LOADING_MSGS[idx];
+}
+
+// ── SUGERENCIAS ──────────────────────────────────────────
 const SUGERENCIAS = [
   '¿Quién es el jugador más viejo?',
   '¿Quién tiene más atributos técnicos?',
-  '¿Cuáles son los jugadores más rápidos?',
   '¿Quiénes son los fichajes prioritarios?',
-  '¿Qué delanteros tenemos disponibles?',
+  '¿Qué delanteros están disponibles?',
+  '¿Cuál es el más rápido del plantel?',
   '¿Quién es el jugador más joven?',
 ];
 
+// ── COMPONENTE PRINCIPAL ─────────────────────────────────
 export default function Asistente() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
-  const playersContext = buildContext(mockPlayers);
+  const loadingMsg = useRotatingMsg(loading);
+
+  // Construir contexto una sola vez
+  const playersContext = useRef(buildContext(mockPlayers)).current;
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
 
   async function sendMessage(text) {
-    const userText = text || input.trim();
+    const userText = (text || input).trim();
     if (!userText || loading) return;
     setInput('');
 
@@ -57,40 +86,40 @@ export default function Asistente() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/chat', {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: newMessages, playersContext }),
       });
 
-      const data = await response.json();
-      const reply = data.reply || 'Sin respuesta.';
-      setMessages(prev => [...prev, { role: 'assistant', content: reply }]);
-    } catch (err) {
+      const data = await res.json();
+      setMessages(prev => [...prev, { role: 'assistant', content: data.reply || 'Sin respuesta.' }]);
+    } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: '❌ Error al conectar con el asistente.' }]);
     } finally {
       setLoading(false);
-      inputRef.current?.focus();
+      setTimeout(() => inputRef.current?.focus(), 100);
     }
   }
 
   function handleKey(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   }
 
   return (
     <>
       <Navbar />
       <div className={styles.page}>
+
+        {/* Header */}
         <div className={styles.header}>
           <div className={styles.headerLeft}>
             <span className={styles.headerIcon}>🤖</span>
             <div>
               <h1 className={styles.title}>ASISTENTE IA</h1>
-              <p className={styles.subtitle}>Consultá tu plantilla en lenguaje natural — {mockPlayers.length} jugadores cargados</p>
+              <p className={styles.subtitle}>
+                Consultá tu plantilla en lenguaje natural — {mockPlayers.length} jugadores cargados
+              </p>
             </div>
           </div>
           <div className={styles.badge}>
@@ -99,13 +128,16 @@ export default function Asistente() {
           </div>
         </div>
 
+        {/* Chat */}
         <div className={styles.chatWrapper}>
           <div className={styles.messages}>
+
+            {/* Estado vacío con sugerencias */}
             {messages.length === 0 && (
               <div className={styles.empty}>
                 <div className={styles.emptyIcon}>⚽</div>
                 <p className={styles.emptyTitle}>¿Qué querés saber de tu plantilla?</p>
-                <p className={styles.emptySub}>Hacé preguntas en lenguaje natural sobre tus jugadores</p>
+                <p className={styles.emptySub}>Preguntá en lenguaje natural — el asistente conoce a los {mockPlayers.length} jugadores</p>
                 <div className={styles.sugerencias}>
                   {SUGERENCIAS.map(s => (
                     <button key={s} className={styles.sugerencia} onClick={() => sendMessage(s)}>
@@ -116,8 +148,12 @@ export default function Asistente() {
               </div>
             )}
 
+            {/* Mensajes */}
             {messages.map((msg, i) => (
-              <div key={i} className={`${styles.msg} ${msg.role === 'user' ? styles.msgUser : styles.msgBot}`}>
+              <div
+                key={i}
+                className={`${styles.msg} ${msg.role === 'user' ? styles.msgUser : styles.msgBot}`}
+              >
                 {msg.role === 'assistant' && <span className={styles.msgAvatar}>🤖</span>}
                 <div className={styles.msgBubble}>
                   {msg.role === 'assistant' ? (
@@ -132,11 +168,17 @@ export default function Asistente() {
               </div>
             ))}
 
+            {/* Indicador de carga */}
             {loading && (
               <div className={`${styles.msg} ${styles.msgBot}`}>
                 <span className={styles.msgAvatar}>🤖</span>
-                <div className={styles.msgBubble}>
-                  <div className={styles.typing}><span /><span /><span /></div>
+                <div className={`${styles.msgBubble} ${styles.loadingBubble}`}>
+                  <div className={styles.loadingInner}>
+                    <div className={styles.typing}>
+                      <span /><span /><span />
+                    </div>
+                    <span className={styles.loadingText}>{loadingMsg}</span>
+                  </div>
                 </div>
               </div>
             )}
@@ -144,6 +186,7 @@ export default function Asistente() {
             <div ref={bottomRef} />
           </div>
 
+          {/* Input */}
           <div className={styles.inputRow}>
             <textarea
               ref={inputRef}
@@ -160,7 +203,9 @@ export default function Asistente() {
               onClick={() => sendMessage()}
               disabled={!input.trim() || loading}
             >
-              {loading ? '…' : '↑'}
+              {loading ? (
+                <span className={styles.sendSpinner} />
+              ) : '↑'}
             </button>
           </div>
         </div>
