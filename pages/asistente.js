@@ -23,7 +23,8 @@ function buildContext(players) {
     });
     const totalAttrs = ['tecnico', 'fisico', 'mental'].reduce((acc, cat) =>
       acc + Object.values(p.atributos?.[cat] || {}).length, 0);
-    return `${p.datosPersonales.nombre} ${p.datosPersonales.apellido}|${p.perfilFutbolistico.posicionNatural}|${p.perfilFutbolistico.estado}|${age}a|${p.datosPersonales.primeraNacionalidad}|${p.perfilFutbolistico.perfilHabil}|${p.fisico?.altura}m|attrs(${allAttrs.length}/${totalAttrs}):${allAttrs.join(',')}|club:${p.contrato?.clubActual}|prior:${p.contrato?.fichajePrioritario ? 'si' : 'no'}`;
+    // Incluye _id entre corchetes para que la IA pueda generar links de comparación
+    return `[${p._id}] ${p.datosPersonales.nombre} ${p.datosPersonales.apellido}|${p.perfilFutbolistico.posicionNatural}|${p.perfilFutbolistico.estado}|${age}a|${p.datosPersonales.primeraNacionalidad}|${p.perfilFutbolistico.perfilHabil}|${p.fisico?.altura}m|attrs(${allAttrs.length}/${totalAttrs}):${allAttrs.join(',')}|club:${p.contrato?.clubActual}|prior:${p.contrato?.fichajePrioritario ? 'si' : 'no'}`;
   }).join('\n');
 }
 
@@ -50,7 +51,7 @@ function useRotatingMsg(active, interval = 2200) {
   return LOADING_MSGS[idx];
 }
 
-// ── SUGERENCIAS ──────────────────────────────────────────
+// ── SUGERENCIAS RÁPIDAS ──────────────────────────────────
 const SUGERENCIAS = [
   '¿Quién es el jugador más viejo?',
   '¿Quién tiene más atributos técnicos?',
@@ -58,7 +59,20 @@ const SUGERENCIAS = [
   '¿Qué delanteros están disponibles?',
   '¿Cuál es el más rápido del plantel?',
   '¿Quién es el jugador más joven?',
+  'Comparame al mejor delantero con el mejor mediocampista',
 ];
+
+// ── LINK MARKDOWN — abre comparador en pestaña nueva ────
+const MarkdownLink = ({ href, children }) => (
+  <a
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    style={{ color: '#3d8bff', textDecoration: 'underline', fontWeight: 600 }}
+  >
+    {children}
+  </a>
+);
 
 // ── COMPONENTE PRINCIPAL ─────────────────────────────────
 export default function Asistente() {
@@ -69,13 +83,15 @@ export default function Asistente() {
   const inputRef = useRef(null);
   const loadingMsg = useRotatingMsg(loading);
 
-  // Construir contexto una sola vez
+  // Construir contexto una sola vez para no recalcular en cada render
   const playersContext = useRef(buildContext(mockPlayers)).current;
 
+  // Auto-scroll al último mensaje
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
 
+  // ── ENVÍO DE MENSAJE ───────────────────────────────────
   async function sendMessage(text) {
     const userText = (text || input).trim();
     if (!userText || loading) return;
@@ -102,16 +118,18 @@ export default function Asistente() {
     }
   }
 
+  // Enter para enviar, Shift+Enter para nueva línea
   function handleKey(e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   }
 
+  // ── RENDER ─────────────────────────────────────────────
   return (
     <>
       <Navbar />
       <div className={styles.page}>
 
-        {/* Header */}
+        {/* ── HEADER ── */}
         <div className={styles.header}>
           <div className={styles.headerLeft}>
             <span className={styles.headerIcon}>🤖</span>
@@ -128,16 +146,18 @@ export default function Asistente() {
           </div>
         </div>
 
-        {/* Chat */}
+        {/* ── CHAT ── */}
         <div className={styles.chatWrapper}>
           <div className={styles.messages}>
 
-            {/* Estado vacío con sugerencias */}
+            {/* Estado vacío con sugerencias rápidas */}
             {messages.length === 0 && (
               <div className={styles.empty}>
                 <div className={styles.emptyIcon}>⚽</div>
                 <p className={styles.emptyTitle}>¿Qué querés saber de tu plantilla?</p>
-                <p className={styles.emptySub}>Preguntá en lenguaje natural — el asistente conoce a los {mockPlayers.length} jugadores</p>
+                <p className={styles.emptySub}>
+                  Preguntá en lenguaje natural — el asistente conoce a los {mockPlayers.length} jugadores
+                </p>
                 <div className={styles.sugerencias}>
                   {SUGERENCIAS.map(s => (
                     <button key={s} className={styles.sugerencia} onClick={() => sendMessage(s)}>
@@ -148,7 +168,7 @@ export default function Asistente() {
               </div>
             )}
 
-            {/* Mensajes */}
+            {/* Lista de mensajes */}
             {messages.map((msg, i) => (
               <div
                 key={i}
@@ -157,8 +177,11 @@ export default function Asistente() {
                 {msg.role === 'assistant' && <span className={styles.msgAvatar}>🤖</span>}
                 <div className={styles.msgBubble}>
                   {msg.role === 'assistant' ? (
+                    // Renderiza markdown — los links abren el comparador en pestaña nueva
                     <div className={styles.msgText}>
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      <ReactMarkdown components={{ a: MarkdownLink }}>
+                        {msg.content}
+                      </ReactMarkdown>
                     </div>
                   ) : (
                     <p className={styles.msgText}>{msg.content}</p>
@@ -168,16 +191,16 @@ export default function Asistente() {
               </div>
             ))}
 
-            {/* Indicador de carga */}
+            {/* Indicador de carga con mensaje rotativo */}
             {loading && (
               <div className={`${styles.msg} ${styles.msgBot}`}>
                 <span className={styles.msgAvatar}>🤖</span>
                 <div className={`${styles.msgBubble} ${styles.loadingBubble}`}>
                   <div className={styles.loadingInner}>
+                    <span className={styles.loadingText}>{loadingMsg}</span>
                     <div className={styles.typing}>
                       <span /><span /><span />
                     </div>
-                    <span className={styles.loadingText}>{loadingMsg}</span>
                   </div>
                 </div>
               </div>
@@ -186,7 +209,7 @@ export default function Asistente() {
             <div ref={bottomRef} />
           </div>
 
-          {/* Input */}
+          {/* ── INPUT ── */}
           <div className={styles.inputRow}>
             <textarea
               ref={inputRef}
@@ -194,7 +217,7 @@ export default function Asistente() {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKey}
-              placeholder="Ej: ¿Quién tiene más velocidad? ¿Cuáles son los jugadores lesionados?"
+              placeholder="Ej: ¿Quién tiene más velocidad? ¿Comparamos dos jugadores?"
               rows={1}
               disabled={loading}
             />
@@ -203,12 +226,12 @@ export default function Asistente() {
               onClick={() => sendMessage()}
               disabled={!input.trim() || loading}
             >
-              {loading ? (
-                <span className={styles.sendSpinner} />
-              ) : '↑'}
+              {/* Spinner mientras carga, flecha cuando está listo */}
+              {loading ? <span className={styles.sendSpinner} /> : '↑'}
             </button>
           </div>
         </div>
+
       </div>
     </>
   );
