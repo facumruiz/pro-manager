@@ -2,8 +2,8 @@
 // ── MODELOS CON FALLBACK AUTOMÁTICO ─────────────────────
 // Si el primero falla o está saturado, se prueba el siguiente
 const MODELS = [
-  'poolside/laguna-m.1:free',
-  'nvidia/nemotron-3-ultra-550b-a55b:free',
+  'openai/gpt-oss-120b',
+  'openai/gpt-oss-20b',
 ];
 
 // ── SYSTEM PROMPT ────────────────────────────────────────
@@ -66,7 +66,7 @@ export default async function handler(req, res) {
           'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
         },
         body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
+          model,
           messages: [
             { role: 'system', content: systemPrompt },
             ...trimmedMessages,
